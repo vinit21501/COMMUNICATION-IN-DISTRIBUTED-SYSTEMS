@@ -1,0 +1,10 @@
+python -m grpc_tools.protoc -I . --python_out=. --grpc_python_out=. market.proto
+
+
+laptop
+1000
+electronics
+laptop
+100
+19
+u19

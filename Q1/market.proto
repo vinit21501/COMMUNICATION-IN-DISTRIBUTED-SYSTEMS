@@ -1,0 +1,91 @@
+syntax = "proto3";
+
+package market;
+
+service Seller {
+	rpc RegisterSeller (SellerRegisterRequest) returns (SuccessReply);
+	rpc SellItem (SellerItemsRequest) returns (SuccessReply);
+	rpc UpdateItem(UpdateItemsDetailsRequest) returns (SuccessReply);
+	rpc DeleteItem(DeleteItemRequest) returns (SuccessReply);
+	rpc DisplaySellerItems(SellerRegisterRequest) returns (stream ItemDetailsReply);
+	rpc NotifyClient(SellerRegisterRequest) returns (stream ItemDetailsReply);
+}
+
+service Buyer {
+	rpc SearchItem (ItemSearchRequest) returns (stream ItemDetailsReply);
+	rpc BuyItem (BuyingRequest) returns (SuccessReply);
+	rpc AddToWishList (WishListRequest) returns (SuccessReply);
+	rpc RateItem (RatingRequest) returns (SuccessReply);
+	rpc NotifyClient(BuyerNotificationRequest) returns (stream ItemDetailsReply);
+}
+
+message WishListRequest {
+	int64 itemId = 1;
+	string buyerAddress = 2;
+}
+
+message BuyerNotificationRequest {
+	string buyerAddress = 1;
+}
+
+message SellerRegisterRequest {
+	string sellerAddress = 1;
+	string uuid = 2;
+}
+
+message BuyingRequest {
+	int64 itemId = 1;
+	int64 quantity = 2;
+	string buyerAddress = 3;
+}
+
+message SuccessReply {
+	bool success = 1;
+}
+
+message ItemSearchRequest {
+	string itemName = 1;
+	string category = 2;
+}
+
+message UpdateItemsDetailsRequest {
+	int64 itemId = 1;
+	string price = 2;
+	string quantity = 3;
+	string sellerAddress = 4;
+	string uuid = 5;
+}
+
+message ItemDetailsReply {
+	int64 itemId = 1;
+	double price = 2;
+	string name = 3;
+	string category = 4;
+	string description = 5;
+	int64 quantity = 6;
+	double rating = 7;
+	string sellerAddress = 8;
+	int32 totalRating = 9;
+}
+
+message RatingRequest{
+	int64 itemId = 1;
+	string buyerAddress = 2;
+	int64 rating = 3;
+}
+
+message SellerItemsRequest {
+	string name = 1;
+	double price = 2;
+	string category = 3;
+	string description = 4;
+	int64 quantity = 5;
+	string sellerAddress = 6;
+	string uuid = 7;
+}
+
+message DeleteItemRequest {
+	int64 itemId = 1;
+	string sellerAddress = 2;
+	string uuid = 3;
+}
