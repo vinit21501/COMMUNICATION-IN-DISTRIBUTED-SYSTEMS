@@ -5,6 +5,7 @@ import uuid
 
 def run():
     with grpc.insecure_channel('localhost:50051') as channel:
+        sellerUuid = str(uuid.uuid1())
         while(True):
             stub = market_pb2_grpc.SellerStub(channel)
             print("1. RegisterSeller")
@@ -16,7 +17,6 @@ def run():
             print("7. Close")
             # try:
             option=input("Option numer: ")
-            sellerUuid = str(uuid.uuid1())
             if(option=="1"):
                 inSellAdd=input("Seller Address: ")
                 request=market_pb2.SellerRegisterRequest()
