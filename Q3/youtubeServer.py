@@ -1,4 +1,3 @@
-from operator import sub
 import sys
 import pika
 import json
