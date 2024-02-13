@@ -22,12 +22,17 @@ def receiveNotifications(ch, userName):
 def run():
     argc = len(sys.argv)
     argv = sys.argv
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+    connection = pika.BlockingConnection(
+        pika.ConnectionParameters(
+            host='34.131.204.142',
+            credentials=pika.PlainCredentials('vinit', 'vinit1june'
+            )))
     channel = connection.channel()
     if argc <= 1:
         print('Please give some arguments for\nsubscribe, unsubscribe to a YouTuber, and receive notifications')
+        return
     userName = argv[1]
-    if argc == 1:
+    if argc == 2:
         receiveNotifications(channel, userName)
     elif argc > 2:
         if argv[2] == 'u' or argv[2] == 'U':
