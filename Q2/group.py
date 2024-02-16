@@ -5,9 +5,10 @@ from datetime import datetime
 context = zmq.Context()
 socket = context.socket(zmq.REQ)
 socket.connect("tcp://localhost:5555")
+ip = input('Enter ip:port: ')
 body = {
     'type' : 'group',
-    'ip' : 'localhost:5557',
+    'ip' : ip,
     'name' : 'shub'
 }
 

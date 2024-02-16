@@ -9,10 +9,10 @@ body = {
 }
 
 class MessageServerCommunication:
-    def __init__(self):
+    def __init__(self, ip):
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.REQ)
-        self.socket.connect("tcp://34.0.5.81:5555")
+        self.socket.connect(ip)
     def getGroupList(self):
         self.socket.send_json(json.dumps(body))
         return json.loads(self.socket.recv_json())
@@ -38,7 +38,7 @@ class MessageGroupCommunication:
         return self.socket.recv().decode()
     def getMessage(self):
         self.message['request'] = 'get'
-        time = input('provide the date time (2024-02-13 10:59:25.192090): ')
+        time = input('Provide the date time (2024-02-13 10:59:25.192090) (IST): ')
         self.message['time'] = time
         self.socket.send_json(json.dumps(self.message))
         return json.loads(self.socket.recv_json())
@@ -50,7 +50,7 @@ class MessageGroupCommunication:
 
 
 if __name__ == '__main__':
-    server = MessageServerCommunication()
+    server = MessageServerCommunication("tcp://34.0.5.81:5555")
     joinedGroup = {}
     groupList = {}
     while True:

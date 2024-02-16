@@ -10,7 +10,7 @@ def updateSubscription(ch, body):
 
 def printMessage(ch, method, properties, body):
     data = json.loads(body)
-    print(f"New Notification: {data['youtuber']} uploaded {data['video']}")
+    print(f"New Notification: '{data['youtuber']}' uploaded '{data['video']}'")
 
 def receiveNotifications(ch, userName):
     qname = userName
@@ -24,9 +24,9 @@ def run():
     argv = sys.argv
     connection = pika.BlockingConnection(
         pika.ConnectionParameters(
-            host='34.131.204.142',
-            credentials=pika.PlainCredentials('vinit', 'vinit1june'
-            )))
+            host='localhost'
+            # ,credentials=pika.PlainCredentials('vinit', 'vinit1june')
+            ))
     channel = connection.channel()
     if argc <= 1:
         print('Please give some arguments for\nsubscribe, unsubscribe to a YouTuber, and receive notifications')

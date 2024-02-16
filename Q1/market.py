@@ -11,6 +11,14 @@ wishList = {}
 rating = {}
 productUniqueId = 0
 
+def sendNotification(product, serverIP):
+    with grpc.insecure_channel(serverIP) as channel:
+        stub = market_pb2_grpc.NotificationStub(channel)
+        # req = market_pb2.test()
+        # req.check = 'running'
+        rep = stub.Notify(product)
+        print(f'Notification sent : {rep.success}')
+
 class BuyerServicer(market_pb2_grpc.BuyerServicer):
     # option 1
     def SearchItem(self, request, context):
@@ -38,15 +46,17 @@ class BuyerServicer(market_pb2_grpc.BuyerServicer):
         # option 2
         reply = market_pb2.SuccessReply()
         product = findProduct(request.itemId)
-        print(f'Buy request {request.quantity} of item {request.itemId}, from {request.buyerAddress}')
+        print(f'Buy request {request.quantity} of item {request.itemId}, from {request.buyerUuid}')
         if product:
             if product.quantity - request.quantity >= 0:
-                if product.sellerAddress in sellerNotification:
-                    sellerNotification[product.sellerAddress].add(product.itemId)
-                else:
-                    sellerNotification[product.sellerAddress] = set([product.itemId])
+                # if product.sellerAddress in sellerNotification:
+                #     sellerNotification[product.sellerAddress].add(product.itemId)
+                # else:
+                #     sellerNotification[product.sellerAddress] = set([product.itemId])
                 reply.success = True
                 product.quantity -= request.quantity
+                print(product.sellerAddress)
+                sendNotification(product, product.sellerAddress)
                 return reply
         reply.success = False
         return reply
@@ -63,25 +73,27 @@ class BuyerServicer(market_pb2_grpc.BuyerServicer):
                 wishList[request.buyerAddress] = set([request.itemId])
         else:
             reply.success = False
-        print(f'WishList request {request.itemId} of item {product.itemId}, from {request.buyerAddress}')
+        print(f'WishList request item {request.itemId}, from {request.buyerUuid}')
         return reply
 
     def RateItem(self, request, context):
         # option 4
         reply = market_pb2.SuccessReply()
-        print(f'{request.buyerAddress} rated item {request.itemId} with {request.rating} stars.')
-        if request.buyerAddress in rating:
-            for rate in rating[request.buyerAddress]:
+        print(f'{request.buyerUuid} rated item {request.itemId} with {request.rating} stars.')
+        if request.buyerUuid in rating:
+            for rate in rating[request.buyerUuid]:
                 if request.itemId == rate[0]:
                     reply.success = False
                     return reply
         else:
-            rating[request.buyerAddress] = set()
+            rating[request.buyerUuid] = set()
         product = findProduct(request.itemId)
         if product:
-            if 1 <= request.rating <= 5:
-                rating[request.buyerAddress].add((product.itemId, request.rating))
-                product.rating = product.rating * product.totalRating + request.rating
+
+            if request.rating.is_integer() and 1 <= int(request.rating) <= 5:
+                rate = int(request.rating)
+                rating[request.buyerUuid].add((product.itemId, rate))
+                product.rating = product.rating * product.totalRating + rate
                 product.totalRating += 1
                 product.rating /= product.totalRating
                 reply.success = True
@@ -90,9 +102,9 @@ class BuyerServicer(market_pb2_grpc.BuyerServicer):
         return reply
 
     def NotifyClient(self, request, context):
-        if request.buyerAddress in buyerNotification:
-            temp = buyerNotification[request.buyerAddress]
-            buyerNotification[request.buyerAddress] = set()
+        if request.buyerUuid in buyerNotification:
+            temp = buyerNotification[request.buyerUuid]
+            buyerNotification[request.buyerUuid] = set()
             for productID in temp:
                 product = findProduct(productID)
                 if product:
@@ -151,7 +163,7 @@ class SellerServicer(market_pb2_grpc.SellerServicer):
         reply = market_pb2.SuccessReply()
         if credentialsCheck(request):
             product = findProduct(request.itemId)
-            if product:
+            if product and product.sellerAddress == request.sellerAddress:
                 reply.success = True
                 try:
                     if request.price != '':
@@ -162,10 +174,12 @@ class SellerServicer(market_pb2_grpc.SellerServicer):
                     for buyer in wishList:
                         for productId in wishList[buyer]:
                             if productId == request.itemId:
-                                if buyer in buyerNotification:
-                                    buyerNotification[buyer].add(productId)
-                                else:
-                                    buyerNotification[buyer] = set([productId])
+                                # if buyer in buyerNotification:
+                                #     buyerNotification[buyer].add(productId)
+                                # else:
+                                #     buyerNotification[buyer] = set([productId])
+                                print(buyer)
+                                sendNotification(product, buyer)
                     return reply
                 except:
                     reply.success = False
@@ -183,7 +197,7 @@ class SellerServicer(market_pb2_grpc.SellerServicer):
         reply = market_pb2.SuccessReply()
         if credentialsCheck(request):
             product = findProduct(request.itemId)
-            if product:
+            if product and product.sellerAddress == request.sellerAddress:
                 reply.success = True
                 products.remove(product)
                 print(f'Delete Item {request.itemId} request from {request.sellerAddress}')
@@ -201,8 +215,8 @@ class SellerServicer(market_pb2_grpc.SellerServicer):
         print(f'Display Item request from {request.sellerAddress}')
         if credentialsCheck(request):
             for product in products:
-                # if product.sellerAddress == request.sellerAddress:
-                yield product
+                if product.sellerAddress == request.sellerAddress:
+                    yield product
 
     def NotifyClient(self, request, context):
         if request.sellerAddress in sellerNotification:
@@ -210,16 +224,19 @@ class SellerServicer(market_pb2_grpc.SellerServicer):
             sellerNotification[request.sellerAddress] = set()
             for productID in temp:
                 product = findProduct(productID)
-                if product:
+                if product and product.sellerAddress == request.sellerAddress:
                     yield product
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     market_pb2_grpc.add_BuyerServicer_to_server(BuyerServicer(), server)
     market_pb2_grpc.add_SellerServicer_to_server(SellerServicer(), server)
-    server.add_insecure_port("localhost:50051")
+    server.add_insecure_port("[::]:50051")
     server.start()
     server.wait_for_termination()
 
 if __name__ == "__main__":
-    serve()
+    try:
+        serve()
+    except:
+        print('Interrupt')

@@ -1,16 +1,17 @@
 import sys
 import pika
+import json
 
 def publishVideo(body):
     connection = pika.BlockingConnection(
         pika.ConnectionParameters(
-            host='34.131.204.142',
-            credentials=pika.PlainCredentials('vinit', 'vinit1june'
-            )))
+            host='localhost'
+            # ,credentials=pika.PlainCredentials('vinit', 'vinit1june')
+            ))
     channel = connection.channel()
     channel.queue_declare(queue='uploadvideo')
     
-    channel.basic_publish(exchange='', routing_key='uploadvideo', body=body)
+    channel.basic_publish(exchange='', routing_key='uploadvideo', body=json.dumps(body))
     connection.close()
 
 def run():
