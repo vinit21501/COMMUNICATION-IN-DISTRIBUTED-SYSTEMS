@@ -51,6 +51,8 @@ def serve():
 def run():
     buyerDetail = User('localhost', '50053')
     with grpc.insecure_channel('localhost:50051') as channel:
+    # buyerDetail = User('34.0.8.139', '50053')
+    # with grpc.insecure_channel('34.0.3.104:50051') as channel:
         stub = market_pb2_grpc.BuyerStub(channel)
         while(True):
                 print("1. SearchItem")
@@ -106,7 +108,7 @@ def run():
                             print("FAIL")
                     elif option == "4":
                         inID=int(input("ItemID: "))
-                        inRating=int(input("Rating between(1 to 5): "))
+                        inRating=input("Rating between(1 to 5): ")
                         request=market_pb2.RatingRequest()
                         request.itemId=inID
                         request.buyerAddress=buyerDetail.getip()

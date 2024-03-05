@@ -1,7 +1,7 @@
 import zmq
 import json
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 body = {
     'type':'user',
@@ -38,8 +38,13 @@ class MessageGroupCommunication:
         return self.socket.recv().decode()
     def getMessage(self):
         self.message['request'] = 'get'
-        time = input('Provide the date time (2024-02-13 10:59:25.192090) (IST): ')
-        self.message['time'] = time
+        time = input('Provide the date time "%Y-%m-%d %H:%M:%S" (UTC): ')
+        if time != '':
+            dt = datetime.strptime(time, '%Y-%m-%d %H:%M:%S')
+            dt = dt.replace(tzinfo=timezone.utc).timestamp()
+            self.message['time'] = dt
+        else:
+            self.message['time'] = ''
         self.socket.send_json(json.dumps(self.message))
         return json.loads(self.socket.recv_json())
     def sendMessage(self):
@@ -48,9 +53,8 @@ class MessageGroupCommunication:
         self.socket.send_json(json.dumps(self.message))
         return self.socket.recv().decode()
 
-
 if __name__ == '__main__':
-    server = MessageServerCommunication("tcp://34.0.5.81:5555")
+    server = MessageServerCommunication("tcp://localhost:5555")
     joinedGroup = {}
     groupList = {}
     while True:

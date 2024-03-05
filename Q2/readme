@@ -1,0 +1,9 @@
+For installing the required dependencies
+    pip install pyzmq
+
+In group.py we have asked {ip:port} from the group and hardcoded the group name.
+User can join multiple groups and message in multiple groups.
+User can easily join group by mentioning the name of the group.
+
+Each message sent in the group is linked with the user's uuid.
+

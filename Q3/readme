@@ -1,4 +1,8 @@
-add user in rabbitmq server
-rabbitmqctl add_user username password
-rabbitmqctl set_user_tags username administrator
-rabbitmqctl set_permissions -p / username ".*" ".*" ".*"
+We can't access the rabbitmq from different computer so we have made user in order to access rabbitmq server.
+    rabbitmqctl add_user username password
+    rabbitmqctl set_user_tags username administrator
+    rabbitmqctl set_permissions -p / username ".*" ".*" ".*"
+
+Every user has its own queue in which it recieves the notification.
+
+The youtubeServer notifies the published videos to the users according to thier subscriptions.

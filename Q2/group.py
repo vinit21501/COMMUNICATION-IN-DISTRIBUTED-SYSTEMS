@@ -57,8 +57,8 @@ while True:
             if message['time'] == '':
                 socket.send_json(json.dumps(groupMessage))
             else:
-                giventime = message['time']
-                socket.send_json(json.dumps((dict(filter(lambda x : x[0] > giventime, groupMessage.items())))))
+                data = dict(filter(lambda x : x[0] >= message['time'], groupMessage.items()))
+                socket.send_json(json.dumps(data))
         print(f"MESSAGE REQUEST FROM {message['uuid']}")
     else:
         socket.send(b'FAIL')

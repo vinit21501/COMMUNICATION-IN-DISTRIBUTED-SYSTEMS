@@ -50,6 +50,8 @@ def serve():
 def run():
     sellerDetails = User('localhost', '50052')
     with grpc.insecure_channel('localhost:50051') as channel:
+    # sellerDetails = User('34.0.3.104', '50052')
+    # with grpc.insecure_channel('34.0.4.70:50051') as channel:
         stub = market_pb2_grpc.SellerStub(channel)
         while(True):
             print("1. RegisterSeller")
@@ -61,13 +63,15 @@ def run():
             try:
                 option=input("Option numer: ")
                 if(option=="1"):
-                    inSellPort=input("Seller Port: ")
-                    sellerDetails.setport(inSellPort)
+                    # inSellPort=input("Seller Port: ")
+                    # sellerDetails.setport(inSellPort)
                     request=market_pb2.SellerRegisterRequest()
                     request.sellerAddress=sellerDetails.getip()
                     request.uuid=sellerDetails.getuuid()
                     reply=stub.RegisterSeller(request)
                     # serve(sellerDetails)
+                    # liveServer = threading.Thread(target=serve, daemon=True)
+                    # liveServer.start()
                     if(reply.success):
                         print("SUCCESS")
                     else:
@@ -165,10 +169,11 @@ def run():
 if __name__ == "__main__":
     try:
         # run()
-        liveServer = threading.Thread(target=serve, daemon=True)
+
         seller = threading.Thread(target=run, daemon=True)
-        liveServer.start()
         seller.start()
+        liveServer = threading.Thread(target=serve, daemon=True)
+        liveServer.start()
         liveServer.join()
         seller.join()
     except:

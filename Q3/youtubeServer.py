@@ -20,10 +20,14 @@ def consume_user_requests(ch, method, properties, body):
     if data['youtuber'] not in subscriptionList:
         subscriptionList[data['youtuber']] = set()
     if data['subscribe']:
-        # print(f"{data['user']} subscripted {data['youtuber']}")
+        print(f"{data['user']} subscribted {data['youtuber']}")
         subscriptionList[data['youtuber']].add(data['user'])
     else:
-        subscriptionList[data['youtuber']].remove(data['user'])
+        if data['user'] in subscriptionList[data['youtuber']]:
+            print(f"{data['user']} unsubscribted {data['youtuber']}")
+            subscriptionList[data['youtuber']].remove(data['user'])
+        else:
+            print(f"{data['user']} not subscribted {data['youtuber']}")
     
 
 def consume_youtuber_requests(ch, method, properties, body):

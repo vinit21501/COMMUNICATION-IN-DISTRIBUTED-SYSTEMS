@@ -89,15 +89,17 @@ class BuyerServicer(market_pb2_grpc.BuyerServicer):
             rating[request.buyerUuid] = set()
         product = findProduct(request.itemId)
         if product:
-
-            if request.rating.is_integer() and 1 <= int(request.rating) <= 5:
+            try:
                 rate = int(request.rating)
-                rating[request.buyerUuid].add((product.itemId, rate))
-                product.rating = product.rating * product.totalRating + rate
-                product.totalRating += 1
-                product.rating /= product.totalRating
-                reply.success = True
-                return reply
+                if 1 <= rate <= 5:
+                    rating[request.buyerUuid].add((product.itemId, rate))
+                    product.rating = product.rating * product.totalRating + rate
+                    product.totalRating += 1
+                    product.rating /= product.totalRating
+                    reply.success = True
+                    return reply
+            except:
+                reply.success = False
         reply.success = False
         return reply
 

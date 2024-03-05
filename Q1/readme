@@ -1,10 +1,25 @@
-python -m grpc_tools.protoc -I . --python_out=. --grpc_python_out=. market.proto
+For installing the required dependencies
+    pip install grpcio grpcio-tools
+For generating the proto files
+    python -m grpc_tools.protoc -I . --python_out=. --grpc_python_out=. market.proto
 
+The Market node is deployed at google cloud at a certain address (ip:port), which is known to all the sellers and buyers.
+This address specifies where the Notification server for the current seller and buyer is hosted.
 
-laptop
-1000
-electronics
-laptop
-100
-19
-u19
+-------------------WE HAVE IMPLEMENTED A MENU DRIVEN PROGRAM-----------------
+buyer.py implements the following:-
+We have hardcoded the {ip:port} along with the uuid
+    Searching for items (SearchItem)
+    Buying items (BuyItem)
+    Adding items to the wishlist (AddToWishList)
+    Rating items (RateItem)
+    Exiting the script (Close)
+
+seller.py implements the following:-
+We have hardcoded the {ip:port} along with the uuid
+    Registering as a seller (RegisterSeller)
+    Selling items (SellItem)
+    Updating item details (UpdateItem)
+    Deleting items (DeleteItem)
+    Displaying seller items (DisplaySellerItems)
+    Exiting the script (Close)

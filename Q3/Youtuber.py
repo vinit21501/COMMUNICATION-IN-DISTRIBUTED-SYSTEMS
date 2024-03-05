@@ -22,6 +22,7 @@ def run():
     if argc > 2:
         body = {'youtuber' : argv[1], 'video' : ' '.join(argv[2:])}
         publishVideo(body)
+        print('SUCCESS')
     else:
         print('invalid arguments')
 
